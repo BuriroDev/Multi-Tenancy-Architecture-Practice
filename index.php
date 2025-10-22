@@ -1,3 +1,34 @@
+<?php
+session_start();
+require "db.php";
+
+if ($_SERVER['REQUEST_METHOD'] === "POST") {
+    $emp_code = $_POST['code'];
+    $emp_email = $_POST['email'];
+    $emp_password = $_POST['password'];
+    $hashedPassword = md5($emp_password);
+    $dbName = "employee" . $emp_code;
+
+    $sql2 = "SELECT * FROM db_records WHERE db_name = '$dbName'";
+
+    $sql = "SELECT * FROM employees_credential WHERE email = '$emp_email' AND password = '$hashedPassword'";
+    $result = mysqli_query($conn, $sql);
+
+
+    if (mysqli_query($conn, $sql2)->num_rows > 0) {
+        if (mysqli_query($conn, $sql)->num_rows > 0) {
+            $_SESSION['db_code'] = "employee" . $emp_code;
+            header("location: dashboard.php");
+        } else {
+            echo "Invalid Password/Email";
+        }
+    } else {
+        echo "Invalid Code";
+    }
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -47,7 +78,7 @@
                             <small class="or text-center">Or</small>
                             <div class="line"></div>
                         </div>
-                        <form action="POST">
+                        <form method="POST">
                             <div class="row px-3">
                                 <label class="mb-1">
                                     <h6 class="mb-0 text-sm">Employee Code</h6>

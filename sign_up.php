@@ -1,4 +1,5 @@
 <?php
+session_start();
 require "db.php";
 
 if ($_SERVER['REQUEST_METHOD'] === "POST") {
@@ -7,6 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     $emp_password = $_POST['password'];
     $emp_confirmPass = $_POST['confirmPassword'];
     $hashedPassword = md5($emp_password);
+    $db_name = "employee" . $emp_code;
 
     if (md5($emp_password) === md5($emp_confirmPass)) {
         $sql = "SELECT * FROM employees_credential WHERE employee_code = '$emp_code'";
@@ -18,8 +20,11 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             $sql = "INSERT INTO employees_credential (employee_code, email, password) VALUES('$emp_code', '$emp_email', '$hashedPassword')";
 
             if (mysqli_query($conn, $sql)) {
-                $sql2 = "CREATE DATABASE vergeEmployee";
-                
+                $id = $conn->insert_id;
+                $_SESSION['db_name'] = $db_name;
+                $sql = "INSERT INTO db_records (emp_id, db_name) VALUES($id, '$db_name')";
+                mysqli_query($conn, $sql);
+                header("location: emp_db.php");
             }
 
             echo "account created!";
